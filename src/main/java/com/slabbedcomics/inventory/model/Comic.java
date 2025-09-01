@@ -5,10 +5,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Data;
 
 /**
  * Comic entity representing a comic book in inventory.
  */
+@Data
 @Entity
 public class Comic {
     
@@ -24,7 +26,7 @@ public class Comic {
     private double purchasePrice;
     private double estimatedValue;
     private int quantity;
-    private double salePrice;
+    private Double salePrice;
     private String status;
     private String notes;
 
