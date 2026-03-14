@@ -10,12 +10,14 @@ An experimental mini operating system - work in progress.
 ```bash
 nasm -f bin boot_sector.asm -o boot_sector.bin
 nasm -f bin boot_sect_memory.asm -o boot_sect_memory.bin
+nasm -f bin boot_sect_stack.asm -o boot_sect_stack.bin
 ```
 
 ### Run
 ```bash
 qemu-system-x86_64 boot_sector.bin
 qemu-system-x86_64 boot_sect_memory.bin
+qemu-system-x86_64 boot_sect_stack.bin
 ```
 
 ### Inspect
