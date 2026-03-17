@@ -16,6 +16,19 @@ nasm -f bin boot_sect_segmentation.asm -o boot_sect_segmentation.bin
 nasm -f bin 32bit_main.asm -o 32bit_main.bin
 ```
 
+### Compile (C)
+```bash
+# compile to object file — -ffreestanding means no OS, no standard library
+x86_64-elf-gcc -ffreestanding -c function.c -o function.o
+x86_64-elf-gcc -ffreestanding -c localvars.c -o localvars.o
+```
+
+### Link
+```bash
+# link object file to raw binary, placed at address 0x0
+x86_64-elf-ld -o function.bin -Ttext 0x0 --oformat binary function.o
+```
+
 ### Run
 ```bash
 qemu-system-x86_64 boot_sector.bin
@@ -31,6 +44,11 @@ qemu-system-x86_64 32bit_main.bin
 xxd boot_sector.bin          # hex dump (default)
 xxd -b boot_sector.bin       # binary
 xxd -p boot_sector.bin       # plain hex, no offsets
+
+x86_64-elf-objdump -d function.o           # disassemble object file (AT&T syntax)
+x86_64-elf-objdump -d -M intel function.o  # disassemble (Intel syntax — matches NASM)
+
+x86_64-elf-objdump -d -M intel localvars.o
 ```
 
 ---
@@ -42,3 +60,8 @@ xxd -p boot_sector.bin       # plain hex, no offsets
 
 ---
 
+## References
+
+- [cfenollosa/os-tutorial](https://github.com/cfenollosa/os-tutorial) — the tutorial this project tries to follow
+- [OSDev Wiki](https://wiki.osdev.org/Expanded_Main_Page) — comprehensive reference for OS development concepts
+- [The Little Book About OS Development](https://littleosbook.github.io/) — accessible guide to writing an OS from scratch

@@ -18,3 +18,11 @@ How functions work in assembly, calling, returning, and preserving register stat
 
 ---
 
+## print (bootsect_print.asm)
+
+
+---
+
+
+## disk_load (bootsect_disk.asm)
+

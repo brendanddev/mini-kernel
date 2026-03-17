@@ -50,9 +50,17 @@ Same data. Hex is just far more readable at this scale.
 ## How It All Connects
 
 ```
-An .asm file
+.asm file    -->     Human readable mnemonics: MOV AH, 0x0e
+.bin file    -->     Raw bytes in memory: b4 0e
+xxd output   -->     those bytes in hex: b4 0e
+CPU sees     -->     those bytes in binary: 10110100 00001110
 
 ```
+
+NASM assembles the source into raw bytes.
+QEMU emulates the hardware.
+The BIOS (inside QEMU) loads code into RAM at `0x7c00`.
+`xxd` allows for inspecting bytes directly.
 
 ---
 
@@ -221,8 +229,106 @@ print:
 
 ## BIOS Interrupts
 
+A BIOS interrupt is a software interrupt that allows programs to communicate with the computers hardware through the BIOS (Basic Input/Output System). It provides a way for software to perform hardware control or input/output functions without needing to know the specific details of the hardware.
+
+For example, `int` is a CPU **instruction** that calls a BIOS routine. The BIOS has many built-in functions, each identified by an interrupt number. `AH` tells the BIOS which function you want, `AL` holds the data.
+
+```asm
+mov ah, 0x0e        ;; Set BIOS video function to TTY (teletype) mode
+mov al, 'H;         ;; The character to print
+int 0x10            ;; Fire the interrupt, BIOS reads AH and AL and prints to screen
+```
+
+It can be thought of as a function call:
+```
+int 0x10    =   BIOS_video(function=0x0e, character='H')
+```
+
+Common interrupts:
+```
+int 0x10    ->  Video/screen (print characters, set video mode)
+int 0x13    ->  Disk (read/write sectors)
+int 0x16    -> Keyboard (read keypress)
+
+TTY mode (0x0e) treats the screen like an old teletype machine. Characters printed one at a time, cursor advances automatically. Newline requires two characters:
+
+```asm
+mov al, 0x0a    ;; Line feed, moves cursor down one line
+int 0x10
+mov al, 0x0d    ;; Carrage return, moves cursor back to start of line
+int 0x10
+```
+
 ---
 
-## NASM Directibves vs Instructions
+## NASM Directives vs Instructions
+
+**Instructions** (`mov`, `int`, `push`, `pop`) are translated into actual bytes that the CPU executes at runtime. You can see them in `xxd` ouput.
+
+**Directives** (`db`, `dw`, `times`, `org`, `%include`) are commands to NASM itself at assembly time. They never become CPU instructions, they tell NASM how to build the binary.
+
+```
+db       ->  define byte      (place 1 byte in memory)
+dw       ->  define word      (place 2 bytes in memory)
+dd       ->  define dword     (place 4 bytes in memory)
+times    ->  repeat N times   (e.g. fill N bytes with zero)
+org      ->  set origin address (tell NASM where code will be in RAM)
+%include -> insert another file at assembly time (not at runtime)
+```
+
+Examples:
+
+```asm
+db "X"                  ;; Place byte 0x58 ('X') at this location
+db 'Hello', 0           ;; Place string bytes + null terminator
+dw 0xaa55               ;; Place 2 bytes, the boot signature
+times 510-($-$$) db 0   ;; Fill remaining space with zeros up to byte 510
+[org 0x7c00]            ;; All addresses calculated from 0x7c00
+%include "print.asm"    ;; Include contents of print.asm here at assembly time
+```
 
 ---
+
+## xxd
+
+`xxd` is a Unix command line utility that creates a hex dump of any file. Every file is ultimately just bytes, and `xxd` shows those bytes directly rather than through the lens of an application interpreting them.
+
+Reading the output:
+ 
+```
+00000000: b40e b048 cd10 b065 cd10 b06c cd10 cd10  ...H...e...l....
+^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^
+offset         hex bytes (16 per row)               ASCII preview
+```
+
+- **Offset** — where in the file you are (in hex). `0x10` = byte 16
+- **Hex bytes** — the raw byte values, 16 per row, each pair = 1 byte
+- **ASCII column** — same bytes read as text characters, `.` = non-printable
+ 
+Flags:
+ 
+| Command              | Output                           |
+|----------------------|----------------------------------|
+| `xxd file.bin`       | Hex dump (default)               |
+| `xxd -b file.bin`    | Binary — shows actual bits       |
+| `xxd -p file.bin`    | Plain hex, no offsets or spaces  |
+ 
+> Decimal has no `xxd` flag — and that's fine. Decimal is not used at this layer.
+> Hex is for everyday use, binary is for when you care about individual bits.
+
+---
+
+## Why Arrays are 0-Indexed
+
+Memory addreses start at `0x0000`, the first byte is at address 0, not 1.
+An array index is just a **memory offset**, how many bytes from the start address.
+```c
+char str[] = "Hello";
+str[0]  →  'H'   // 0 bytes from the start
+str[1]  →  'e'   // 1 byte from the start
+str[2]  →  'l'   // 2 bytes from the start
+```
+
+`str[n]` means "go to the address of str, move forward n bytes, get whats there." If arrays started at 1, offset 1 would skip the first byte entirely.
+
+0-based indexing is not an arbitrary language design choice, it is a direct reflection of how memory addressing works at the hardware level. Thinking about it, the boot sector I have created is loaded at `0x7c00`, the first byte of code is at `0x7c00`, not `0x7c01`.
