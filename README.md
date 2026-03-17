@@ -13,6 +13,7 @@ nasm -f bin boot_sect_memory.asm -o boot_sect_memory.bin
 nasm -f bin boot_sect_stack.asm -o boot_sect_stack.bin
 nasm -f bin bootsect_main.asm -o bootsect_main.bin
 nasm -f bin boot_sect_segmentation.asm -o boot_sect_segmentation.bin
+nasm -f bin 32bit_main.asm -o 32bit_main.bin
 ```
 
 ### Run
@@ -22,6 +23,7 @@ qemu-system-x86_64 boot_sect_memory.bin
 qemu-system-x86_64 boot_sect_stack.bin
 qemu-system-x86_64 bootsect_main.bin
 qemu-system-x86_64 boot_sect_segmentation.bin
+qemu-system-x86_64 32bit_main.bin
 ```
 
 ### Inspect
