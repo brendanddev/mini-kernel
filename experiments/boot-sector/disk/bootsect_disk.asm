@@ -34,7 +34,7 @@ disk_error:
     jmp disk_loop
 
 
-sectors_errors:
+sectors_error:
     mov bx, SECTORS_ERROR
     call print
 
