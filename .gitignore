@@ -5,3 +5,9 @@
 
 ## Object files
 *.o
+
+## Executable and linkables
+*.elf
+
+## Images
+*.img
