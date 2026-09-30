@@ -1,4 +1,3 @@
-
 ; print_hex.asm
 
 print_hex:

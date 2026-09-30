@@ -1,8 +1,31 @@
-# mini-os-asm
+# mini-kernel
 
-An experimental mini operating system - work in progress.
+An experimental mini kernel and operating system - work in progress.
 
 ---
+
+## Project Structure
+```
+mini-kernel/
+├─── README.md
+├─── Makefile # Build, run, and debug targets
+├─── boot/    # Everything that runs before the C kernel
+│ ├─── bootsector.asm
+│ ├─── print.asm
+│ ├─── print_hex.asm
+│ ├─── disk.asm
+│ ├─── gdt.asm
+│ ├─── switch_pm.asm
+│ ├─── 32bit_print.asm
+│ └─── kernel_entry.asm
+├─── kernel/  # The kernel proper (C)
+│ └─── kernel.c
+├─── drivers/ # Hardware-specific code
+│ ├─── port.c
+│ └─── ports.h
+├─── docs/    # Documentation and developer resources
+└─── archive/ # Archived work
+```
 
 ## Commands
 
@@ -75,8 +98,6 @@ ndisasm -b 32 function.bin                      # disassemble raw binary
 - **x86_64-elf-objdump** — disassembler, inspect machine code in object files
 - **xxd** — hex dump utility, inspect raw bytes of any file
 - **ndisasm** — disassembler for raw binaries (comes with NASM)
-
----
 
 ## References
 

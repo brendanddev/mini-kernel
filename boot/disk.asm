@@ -1,4 +1,3 @@
-
 ; disk.asm
 
 disk_load:
@@ -19,7 +18,6 @@ disk_load:
     jne sectors_error
     popa
     ret
-
 
 disk_error:
     mov bx, DISK_ERROR

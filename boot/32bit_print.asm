@@ -1,4 +1,3 @@
-
 ; 32bit_print.asm
 
 [bits 32]

@@ -1,4 +1,3 @@
-
 ; kernel_entry.asm
 
 [bits 32]

@@ -1,6 +1,4 @@
-
 ; gdt.asm
-
 
 gdt_start:
     dd 0x0

@@ -1,3 +1,5 @@
+NAME    := mini-kernel
+VERSION := 0.1.0
 
 # $@ = target file
 # $< = first dependency

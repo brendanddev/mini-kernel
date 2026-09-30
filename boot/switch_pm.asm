@@ -1,4 +1,3 @@
-
 ; switch_pm.asm
 
 [bits 16]

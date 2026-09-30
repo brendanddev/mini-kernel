@@ -1,6 +1,4 @@
-
 ; print_asm
-
 
 print:
     pusha
@@ -19,8 +17,6 @@ start:
 done:
     popa
     ret
-
-
 
 print_nl:
     pusha
