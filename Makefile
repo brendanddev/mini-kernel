@@ -15,11 +15,11 @@ all: run
 
 # Link all objects into kernel.bin at address 0x1000.
 # kernel_entry.o must stay first so its code sits at the start of the binary.
-$(BUILD)/kernel.bin: $(BUILD)/kernel_entry.o $(BUILD)/kernel.o $(BUILD)/screen.o
+$(BUILD)/kernel.bin: $(BUILD)/kernel_entry.o $(BUILD)/kernel.o $(BUILD)/screen.o $(BUILD)/port.o
 	x86_64-elf-ld -m elf_i386 -o $@ -Ttext 0x1000 $^ --oformat binary
 
 # Build kernel with debug symbols (ELF format, not binary)
-$(BUILD)/kernel.elf: $(BUILD)/kernel_entry.o $(BUILD)/kernel.o $(BUILD)/screen.o
+$(BUILD)/kernel.elf: $(BUILD)/kernel_entry.o $(BUILD)/kernel.o $(BUILD)/screen.o $(BUILD)/port.o
 	x86_64-elf-ld -m elf_i386 -o $@ -Ttext 0x1000 $^
 
 # Assemble kernel_entry.asm to a 32-bit ELF object file
@@ -31,7 +31,11 @@ $(BUILD)/kernel.o: kernel/kernel.c drivers/screen.h | $(BUILD)
 	x86_64-elf-gcc $(CFLAGS) -c $< -o $@
 
 # Compile the screen driver
-$(BUILD)/screen.o: drivers/screen.c drivers/screen.h | $(BUILD)
+$(BUILD)/screen.o: drivers/screen.c drivers/screen.h drivers/ports.h | $(BUILD)
+	x86_64-elf-gcc $(CFLAGS) -c $< -o $@
+
+# Compile the port I/O wrappers
+$(BUILD)/port.o: drivers/port.c drivers/ports.h | $(BUILD)
 	x86_64-elf-gcc $(CFLAGS) -c $< -o $@
 
 # Assemble the boot sector

@@ -12,5 +12,6 @@ void test_entrypoint() { }
 
 void main() {
     clear_screen();
+    print(KERNEL_NAME " v" KERNEL_VERSION "\n");
     print("Hello from the kernel!\n");
 }

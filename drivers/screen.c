@@ -4,6 +4,7 @@
 // functions for the rest of the kernel.
 
 #include "screen.h"
+#include "ports.h"
 
 // In bytes, so cell = offset / 2
 static int cursor_offset = 0;
@@ -14,6 +15,24 @@ static int get_offset(int col, int row) {
     return (row * MAX_COLS + col) * 2;
 }
 
+// Move the blinking hardware cursor to the given byte offset.
+// Takes bytes, converts to a cell number internally, since VGA
+// registers count cells
+static void set_cursor(int offset) {
+    int cell = offset / 2;
+
+    // Cell number can be up to 1999, but each VGA register holds
+    // 0-255, so split it
+    unsigned char high_byte = cell / 256;
+    unsigned char low_byte = cell % 256;
+
+    port_byte_out(VGA_CTRL_PORT, VGA_REG_CURSOR_HIGH);
+    port_byte_out(VGA_DATA_PORT, high_byte);
+
+    port_byte_out(VGA_CTRL_PORT, VGA_REG_CURSOR_LOW);
+    port_byte_out(VGA_DATA_PORT, low_byte);
+}
+
 void clear_screen() {
     char *video = (char *) VIDEO_ADDRESS;
     for (int i = 0; i < MAX_ROWS * MAX_COLS; i++) {
@@ -21,6 +40,7 @@ void clear_screen() {
         video[i * 2 + 1] = WHITE_ON_BLACK;      // Color byte
     }
     cursor_offset = 0;
+    set_cursor(cursor_offset);
 }
 
 void print_at(char *message, int col, int row) {
@@ -41,6 +61,7 @@ void print_at(char *message, int col, int row) {
             cursor_offset += 2;
         }
     }
+    set_cursor(cursor_offset);
 }
 
 void print(char *message) {
